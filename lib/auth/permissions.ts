@@ -8,7 +8,8 @@ export const PERMISSIONS = [
   "sponsors.view", "sponsors.create", "sponsors.edit", "sponsors.delete",
   "faqs.view", "faqs.create", "faqs.edit", "faqs.delete",
   "settings.view", "settings.manage",
-  "audit.view","campus_ambassador.view",
+  "audit.view",
+  "campus_ambassador.view", "campus_ambassador.reset",
 ] as const;
 
 export type PermissionCode = (typeof PERMISSIONS)[number];

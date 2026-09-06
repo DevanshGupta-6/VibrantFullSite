@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/auth/authorize";
 import { auditAction } from "@/lib/audit";
@@ -28,7 +29,9 @@ function extensionForType(type: string): string {
 export async function getGallery() {
   await requirePermission("gallery.view");
 
-  const { data, error } = await createAdminClient()
+  const db = await createClient();
+
+  const { data, error } = await db
     .from("gallery_photos")
     .select("*")
     .is("deleted_at", null)
@@ -80,9 +83,10 @@ export async function uploadGalleryPhoto(formData: FormData) {
     .slice(0, 60) || "gallery-photo";
   const objectPath = `${parsed.category}/${Date.now()}-${crypto.randomUUID()}-${safeBase}.${extension}`;
 
-  const supabase = createAdminClient();
+  const storageAdmin = createAdminClient();
+  const db = await createClient();
 
-  const upload = await supabase.storage
+  const upload = await storageAdmin.storage
     .from("gallery")
     .upload(objectPath, file, {
       contentType: file.type,
@@ -94,11 +98,11 @@ export async function uploadGalleryPhoto(formData: FormData) {
     throw new Error(`Image upload failed: ${upload.error.message}`);
   }
 
-  const { data: publicUrlData } = supabase.storage
+  const { data: publicUrlData } = storageAdmin.storage
     .from("gallery")
     .getPublicUrl(objectPath);
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("gallery_photos")
     .insert({
       src: publicUrlData.publicUrl,
@@ -113,7 +117,7 @@ export async function uploadGalleryPhoto(formData: FormData) {
     .single();
 
   if (error) {
-    await supabase.storage.from("gallery").remove([objectPath]);
+    await storageAdmin.storage.from("gallery").remove([objectPath]);
     throw new Error(`Gallery record creation failed: ${error.message}`);
   }
 
@@ -139,9 +143,10 @@ export async function uploadGalleryPhoto(formData: FormData) {
 
 export async function deleteImage(id: string) {
   const actor = await requirePermission("gallery.delete");
-  const supabase = createAdminClient();
+  const db = await createClient();
+  const storageAdmin = createAdminClient();
 
-  const { data: row, error: fetchError } = await supabase
+  const { data: row, error: fetchError } = await db
     .from("gallery_photos")
     .select("id,category,src")
     .eq("id", id)
@@ -150,7 +155,7 @@ export async function deleteImage(id: string) {
   if (fetchError) throw new Error(fetchError.message);
   if (!row) return;
 
-  const { error } = await supabase
+  const { error } = await db
     .from("gallery_photos")
     .update({ deleted_at: new Date().toISOString(), published: false })
     .eq("id", id);
@@ -161,7 +166,7 @@ export async function deleteImage(id: string) {
   const index = row.src.indexOf(bucketMarker);
   if (index !== -1) {
     const objectPath = decodeURIComponent(row.src.slice(index + bucketMarker.length));
-    await supabase.storage.from("gallery").remove([objectPath]);
+    await storageAdmin.storage.from("gallery").remove([objectPath]);
   }
 
   await auditAction({

@@ -1,62 +1,16 @@
 // app/api/campus-ambassador/reset/route.ts
 
 import { NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
 import { createClient } from "@/lib/supabase/server";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export async function POST(request: Request) {
   try {
+    await requirePermission("campus_ambassador.reset");
+
     const supabase = await createClient();
 
-    // Verify authenticated Supabase user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Verify that the authenticated user is an active SUPER_ADMIN.
-    const { data: admin, error: adminError } = await supabase
-      .from("admin_users")
-      .select(`
-        id,
-        status,
-        roles:role_id (
-          code
-        )
-      `)
-      .eq("id", user.id)
-      .is("deleted_at", null)
-      .maybeSingle();
-
-    if (adminError || !admin) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    const role = Array.isArray(admin.roles)
-      ? admin.roles[0]
-      : admin.roles;
-
-    if (
-      admin.status !== "ACTIVE" ||
-      role?.code !== "SUPER_ADMIN"
-    ) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    const redis = Redis.fromEnv();
+    const redis = (await import("@upstash/redis")).Redis.fromEnv();
 
     const now = new Date();
 

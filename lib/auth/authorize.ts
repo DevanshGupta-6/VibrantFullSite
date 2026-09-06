@@ -1,3 +1,5 @@
+import "server-only";
+
 import { AppError } from "@/lib/errors";
 import { requireAuth } from "@/lib/auth/session";
 import type { PermissionCode } from "@/lib/auth/permissions";
