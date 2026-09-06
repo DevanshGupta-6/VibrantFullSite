@@ -23,7 +23,17 @@ async function main(){
   if(!superRole||!coordRole)throw new Error("Roles were not created.");
   await supabase.from("role_permissions").delete().in("role_id",[superRole.id,coordRole.id]);
   await supabase.from("role_permissions").insert(Object.values(permissionIds).map(permission_id=>({role_id:superRole.id,permission_id})));
-  const coordinatorPerms=PERMISSIONS.filter(p=>!p.startsWith("users.")&&!p.startsWith("roles.")&&!p.startsWith("sponsors.create")&&!p.startsWith("sponsors.edit")&&!p.startsWith("sponsors.delete")&&!p.startsWith("settings.")&&!p.startsWith("audit."));
+  const coordinatorPerms = PERMISSIONS.filter(
+  p =>
+    !p.startsWith("users.") &&
+    !p.startsWith("roles.") &&
+    !p.startsWith("sponsors.create") &&
+    !p.startsWith("sponsors.edit") &&
+    !p.startsWith("sponsors.delete") &&
+    !p.startsWith("settings.") &&
+    !p.startsWith("audit.") &&
+    !p.startsWith("campus_ambassador.")
+);
   await supabase.from("role_permissions").insert(coordinatorPerms.map(permission=>({role_id:coordRole.id,permission_id:permissionIds[permission]})));
 
   const events=await readJson("events.json").catch(()=>[]); for(const e of Array.isArray(events)?events:[]){await supabase.from("events").upsert({id:String(e.id),number:String(e.number??""),name:e.name,slug:e.slug??String(e.id),category:e.category??"tech",tagline:e.tagline??null,description:e.description??null,date:e.date??null,time:e.time??null,venue:e.venue??null,team_size:e.teamSize??e.team_size??null,eligibility:e.eligibility??null,rules:Array.isArray(e.rules)?e.rules:typeof e.rules==='string'?e.rules.split(/\r?\n/).filter(Boolean):[],prize:e.prize??null,fee:e.fee??null,coordinators:e.coordinators??null,contact:e.contact??null,image:e.image??null,published:e.status?e.status==='Published':e.published!==false,sort_order:Number(e.sortOrder??e.sort_order??0)},{onConflict:"id"})}
