@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "name": "Super Admin",
+    "description": "Full access to all modules and system settings.",
+    "permissions": ["dashboard.view", "users.view", "users.create", "users.edit", "users.delete", "users.manage_roles", "roles.view", "roles.create", "roles.edit", "roles.delete", "events.view", "events.create", "events.edit", "events.delete", "events.publish", "schedule.view", "schedule.create", "schedule.edit", "schedule.delete", "gallery.view", "gallery.create", "gallery.edit", "gallery.delete", "sponsors.view", "sponsors.create", "sponsors.edit", "sponsors.delete", "faqs.view", "faqs.create", "faqs.edit", "faqs.delete", "settings.view", "settings.manage", "audit.view"]
+  },
+  {
+    "id": "2",
+    "name": "Event Manager",
+    "description": "Can manage events, schedules, and view sponsors.",
+    "permissions": ["dashboard.view", "events.view", "events.create", "events.edit", "schedule.view", "schedule.create", "schedule.edit", "sponsors.view"]
+  },
+  {
+    "id": "3",
+    "name": "Content Team",
+    "description": "Can manage gallery and FAQs.",
+    "permissions": ["dashboard.view", "gallery.view", "gallery.create", "gallery.edit", "gallery.delete", "faqs.view", "faqs.create", "faqs.edit", "faqs.delete"]
+  }
+]

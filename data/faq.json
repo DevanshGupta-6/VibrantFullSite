@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "question": "Who can participate in VIBRANT 2K26?",
+    "answer": "VIBRANT 2k26 is open to all college students. Specific events may have different eligibility criteria (e.g., solo vs. team), which are detailed on the events page.",
+    "category": "general"
+  },
+  {
+    "id": "2",
+    "question": "Is there an entry fee?",
+    "answer": "General entry to the fest is free via the Vibeesta app. However, some premium flagship competitions might have a nominal registration fee.",
+    "category": "general"
+  },
+  {
+    "id": "3",
+    "question": "How do I register for the Hackathon?",
+    "answer": "Registration links will be available soon on this website and via our official Devfolio page.",
+    "category": "tech"
+  },
+  {
+    "id": "4",
+    "question": "Are accommodations provided?",
+    "answer": "Yes, overnight accommodation will be provided for outstation participants specifically registered for the 36-hour hackathon.",
+    "category": "general"
+  }
+]

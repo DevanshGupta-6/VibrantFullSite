@@ -1,0 +1,3 @@
+"use server";
+import { requirePermission } from '@/lib/auth/authorize'; import { createAdminClient } from '@/lib/supabase/admin';
+export async function getAuditLogs(){await requirePermission('audit.view');const {data,error}=await createAdminClient().from('audit_logs').select('id,action,entity_type,entity_id,metadata,created_at,actor:actor_id(name,email)').order('created_at',{ascending:false}).limit(200);if(error)throw new Error(error.message);return (data??[]).map((r:any)=>({id:r.id,action:r.action,module:r.entity_type??'System',details:r.metadata?JSON.stringify(r.metadata):r.action,user:r.actor?.name??r.actor?.email??'System',timestamp:r.created_at}))}

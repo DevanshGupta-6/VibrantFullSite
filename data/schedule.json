@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1",
+    "day": "Day 1",
+    "dateText": "16 October",
+    "time": "09:30",
+    "title": "Opening Ceremony",
+    "description": "Inauguration, welcome address & fest kickoff"
+  },
+  {
+    "id": "2",
+    "day": "Day 1",
+    "dateText": "16 October",
+    "time": "11:00",
+    "title": "All Tech Events (Parallel Tracks)",
+    "description": "36-Hr Hackathon, Ideathon, Prompt War & Bug Bounty start simultaneously"
+  },
+  {
+    "id": "3",
+    "day": "Day 1",
+    "dateText": "16 October",
+    "time": "11:30",
+    "title": "Fashion & Modeling (Round 1)",
+    "description": "Theme-based runway & stage presence prelims"
+  },
+  {
+    "id": "4",
+    "day": "Day 1",
+    "dateText": "16 October",
+    "time": "13:30",
+    "title": "Music Competition & Open Mic",
+    "description": "Solo, band battles & acoustic prelims"
+  },
+  {
+    "id": "5",
+    "day": "Day 1",
+    "dateText": "16 October",
+    "time": "15:30",
+    "title": "Choreography Prelims",
+    "description": "Solo & group dance stage rounds"
+  },
+  {
+    "id": "6",
+    "day": "Day 1",
+    "dateText": "16 October",
+    "time": "19:30",
+    "title": "DJ Night",
+    "description": "Live Celebrity DJ & EDM Concert"
+  },
+  {
+    "id": "7",
+    "day": "Day 2",
+    "dateText": "17 October",
+    "time": "09:30",
+    "title": "Tech Final Evaluations",
+    "description": "Hackathon project demos, code reviews & jury judging"
+  },
+  {
+    "id": "8",
+    "day": "Day 2",
+    "dateText": "17 October",
+    "time": "11:00",
+    "title": "Art Showcase & Film Making (Direct Finale)",
+    "description": "Grand short-film screenings & open art exhibition judging"
+  },
+  {
+    "id": "9",
+    "day": "Day 2",
+    "dateText": "17 October",
+    "time": "13:30",
+    "title": "Music & Choreography Grand Finale",
+    "description": "Final battle for top contenders on the main stage"
+  },
+  {
+    "id": "10",
+    "day": "Day 2",
+    "dateText": "17 October",
+    "time": "16:00",
+    "title": "Fashion Runway Finale",
+    "description": "Couture showcase & championship walk"
+  },
+  {
+    "id": "11",
+    "day": "Day 2",
+    "dateText": "17 October",
+    "time": "18:00",
+    "title": "Grand Finale & Award Distribution",
+    "description": "₹4,00,000+ Prize Ceremony & team felicitations"
+  },
+  {
+    "id": "12",
+    "day": "Day 2",
+    "dateText": "17 October",
+    "time": "20:00",
+    "title": "Closing Ceremony",
+    "description": "Official fest wrap-up & celebratory send-off"
+  }
+]

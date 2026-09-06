@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Sahil Raj",
+    "contact": "9876543210",
+    "branch": "CSDS",
+    "code": "CA059",
+    "enrolledAt": "2026-08-26T09:44:14.716Z"
+  },
+  {
+    "name": "Sameer thakur",
+    "contact": "0123456789",
+    "branch": "CSE",
+    "code": "CA060",
+    "enrolledAt": "2026-08-26T09:45:04.902Z"
+  }
+]

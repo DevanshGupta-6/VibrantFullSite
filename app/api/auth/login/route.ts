@@ -1,0 +1,8 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { enforceRateLimit, normalizeEmail } from '@/lib/rateLimit';
+import { auditAction } from '@/lib/audit';
+const schema=z.object({email:z.string().trim().email().max(254),password:z.string().min(1).max(256)});
+export async function POST(request:Request){const body=await request.json().catch(()=>null);const parsed=schema.safeParse(body);if(!parsed.success)return NextResponse.json({error:'Invalid credentials.'},{status:400});const email=normalizeEmail(parsed.data.email);const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||request.headers.get('x-real-ip')||'unknown';try{await enforceRateLimit(`auth:login:${ip}:${email}`,5,15*60)}catch{return NextResponse.json({error:'Too many login attempts. Try again later.'},{status:429})}const supabase=await createClient();const {data,error}=await supabase.auth.signInWithPassword({email,password:parsed.data.password});if(error||!data.user)return NextResponse.json({error:'Invalid credentials or inactive account.'},{status:401});const admin=createAdminClient();const {data:profile}=await admin.from('admin_users').select('id,status').eq('id',data.user.id).is('deleted_at',null).maybeSingle();if(!profile||profile.status!=='ACTIVE'){await supabase.auth.signOut();return NextResponse.json({error:'Invalid credentials or inactive account.'},{status:401})}await admin.from('admin_users').update({last_login_at:new Date().toISOString()}).eq('id',data.user.id);await auditAction({actorId:data.user.id,action:'ADMIN_LOGIN',entityType:'Admin',entityId:data.user.id});return NextResponse.json({ok:true});}

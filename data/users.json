@@ -1,0 +1,45 @@
+[
+  {
+    "id": "1",
+    "name": "Amit Vista",
+    "email": "amit@vibeesta.com",
+    "role": "Super Admin",
+    "status": "Active",
+    "lastActive": "Just now"
+  },
+  {
+    "id": "2",
+    "name": "Saksham",
+    "email": "saksham@vibrant.in",
+    "role": "Event Manager",
+    "status": "Active",
+    "lastActive": "2 hours ago"
+  },
+  {
+    "id": "4",
+    "name": "Anshika",
+    "email": "anshika@vibrant.in",
+    "role": "Content Team",
+    "status": "Active",
+    "lastActive": "Yesterday"
+  },
+  {
+    "id": "1788020397087",
+    "name": "Akshat Pandey",
+    "email": "akshat@vibrat.com",
+    "password": "akshat",
+    "role": "Event Manager",
+    "status": "Active",
+    "lastActive": "Just now"
+  },
+  {
+    "id": "1788021719498",
+    "name": "Pranshu",
+    "email": "pranshu@vibrant.com",
+    "password": "pranshu",
+    "role": "Event Manager",
+    "scope": "Global",
+    "status": "Active",
+    "lastActive": "Just now"
+  }
+]

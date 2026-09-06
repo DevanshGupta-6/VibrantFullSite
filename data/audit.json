@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1788411888651",
+    "action": "Gallery Image Deleted",
+    "module": "Gallery",
+    "details": "Deleted image from 'Crowd'",
+    "user": "System User",
+    "timestamp": "2026-09-03T05:04:48.651Z"
+  },
+  {
+    "id": "1788411885120",
+    "action": "Gallery Upload",
+    "module": "Gallery",
+    "details": "Uploaded new image to 'Crowd'",
+    "user": "System User",
+    "timestamp": "2026-09-03T05:04:45.120Z"
+  }
+]

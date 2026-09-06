@@ -1,0 +1,352 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Unbounded", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+html,
+body {
+  background-color: #07070b;
+  color: #f5f3f7;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.locked {
+  overflow: hidden;
+  height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Anchor sections — offset by navbar height so hash links don't hide under nav */
+[id] {
+  scroll-margin-top: 80px;
+}
+
+::selection {
+  background: #9f1239;
+  color: #f5f3f7;
+}
+
+:focus-visible {
+  outline: 2px solid #a855f7;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  background: #14121c;
+  color: #f5f3f7;
+  padding: 12px 18px;
+  z-index: 1000;
+  transition: top 0.3s;
+  border-radius: 4px;
+}
+.skip-link:focus {
+  top: 16px;
+}
+
+/* ---------------------------------------------------------------
+   FUSION GRADIENT — primary brand identity gradient.
+   Used ONLY on primary CTA buttons and VIBRANT wordmark.
+--------------------------------------------------------------- */
+.fusion-gradient {
+  background-image: linear-gradient(
+    100deg,
+    #6d28d9 0%,
+    #a855f7 32%,
+    #db2777 66%,
+    #e11d48 100%
+  );
+}
+
+.fusion-text {
+  background-image: linear-gradient(
+    100deg,
+    #a855f7 0%,
+    #db2777 55%,
+    #e11d48 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------------------------------------------------------
+   BUTTON UTILITIES — unified design system for all CTAs.
+   Replaces ad-hoc button classes scattered across 8+ components.
+--------------------------------------------------------------- */
+
+@layer components {
+  /* Primary: fusion gradient pill with glow */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #f5f3f7;
+    padding: 1rem 2rem;
+    transition: transform 0.25s cubic-bezier(.16,.84,.44,1),
+                box-shadow 0.25s cubic-bezier(.16,.84,.44,1);
+    background-image: linear-gradient(
+      100deg,
+      #6d28d9 0%,
+      #a855f7 32%,
+      #db2777 66%,
+      #e11d48 100%
+    );
+    box-shadow: 0 8px 30px -8px rgba(168, 85, 247, 0.45),
+                0 4px 12px -4px rgba(219, 39, 119, 0.3);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px -8px rgba(168, 85, 247, 0.55),
+                0 6px 16px -4px rgba(219, 39, 119, 0.4);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 16px -6px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Ghost: border pill, muted — "Registration Opening Soon" state */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #b8b3c4;
+    padding: 1rem 2rem;
+    border: 1px solid rgba(82, 77, 99, 0.5);
+    transition: color 0.2s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-ghost:hover {
+    color: #f5f3f7;
+    border-color: rgba(124, 118, 144, 0.6);
+  }
+
+  /* Small variant modifiers */
+  .btn-sm {
+    font-size: 0.8125rem;
+    padding: 0.625rem 1.25rem;
+  }
+
+  /* Large variant modifier */
+  .btn-lg {
+    font-size: 0.9375rem;
+    padding: 1.25rem 2.5rem;
+  }
+}
+
+/* Gold system — reserved for prize pool only */
+.gold-text {
+  background-image: linear-gradient(100deg, #e8c988 0%, #c9a24b 55%, #9c7a34 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------------------------------------------------------
+   ATMOSPHERE — layered radial energy behind hero, prize pool, CTA
+--------------------------------------------------------------- */
+.atmosphere-violet {
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.5), transparent 70%);
+  filter: blur(60px);
+}
+.atmosphere-crimson {
+  background: radial-gradient(circle, rgba(219, 39, 119, 0.42), transparent 70%);
+  filter: blur(60px);
+}
+.light-leak {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(219, 39, 119, 0.1) 48%,
+    rgba(168, 85, 247, 0.14) 55%,
+    transparent 72%
+  );
+}
+.smoke-fog {
+  background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(20, 18, 28, 0.9), transparent 75%);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------
+   CONTAINER — consistent page-width wrapper with responsive padding
+--------------------------------------------------------------- */
+.container-content {
+  width: 100%;
+  max-width: 1360px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (min-width: 480px) {
+  .container-content {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 640px) {
+  .container-content {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-content {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-content {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   FILM GRAIN — a fixed, extremely faint noise layer.
+   Should never be consciously noticeable.
+--------------------------------------------------------------- */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+/* ---------------------------------------------------------------
+   FINE-LINE MOTIF SYSTEM
+--------------------------------------------------------------- */
+.thin-rule {
+  height: 1px;
+  background: currentColor;
+  opacity: 0.18;
+}
+
+.micro-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #524d63;
+}
+
+/* Short accent rule under a single word */
+.accent-rule {
+  display: inline-block;
+  position: relative;
+}
+.accent-rule::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: -0.14em;
+  height: 2px;
+  background: linear-gradient(90deg, #a855f7, #9f1239);
+  opacity: 0.7;
+}
+
+/* ---------------------------------------------------------------
+   SCROLLBAR UTILITIES
+--------------------------------------------------------------- */
+
+/* Hide scrollbar entirely (keep scroll functionality) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Thin styled scrollbar for horizontal timelines */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 118, 144, 0.3) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(124, 118, 144, 0.3);
+  border-radius: 2px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.4);
+}
