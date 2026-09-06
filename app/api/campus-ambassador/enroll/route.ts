@@ -1,131 +1,171 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-import { Redis } from "@upstash/redis";
+import { z } from "zod";
+import crypto from "crypto";
 
-// Define the interface for our data
-interface Ambassador {
-  name: string;
-  contact: string;
-  branch: string;
-  code: string;
-  enrolledAt: string;
+import {
+  campusAmbassadorRedis,
+  AMBASSADOR_COUNTER_KEY,
+  AMBASSADOR_SET_KEY,
+  ambassadorKey,
+  type Ambassador,
+} from "@/lib/campusAmbassador/redis";
+
+const enrollmentSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters.")
+    .max(100, "Name is too long."),
+
+  contact: z
+    .string()
+    .trim()
+    .min(5, "Please enter valid contact details.")
+    .max(100, "Contact details are too long."),
+
+  branch: z
+    .string()
+    .trim()
+    .min(2, "Branch is required.")
+    .max(50, "Branch is too long."),
+});
+
+function normalize(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function duplicateKey(
+  name: string,
+  contact: string,
+  branch: string
+) {
+  return crypto
+    .createHash("sha256")
+    .update(
+      `${normalize(name)}|${normalize(contact)}|${normalize(branch)}`
+    )
+    .digest("hex");
 }
 
 export async function POST(request: Request) {
   try {
-    const { name, contact, branch } = await request.json();
+    let body: unknown;
 
-    if (!name || !contact || !branch) {
+    try {
+      body = await request.json();
+    } catch {
       return NextResponse.json(
-        { error: "Name, contact, and branch are required." },
+        { error: "Invalid request body." },
         { status: 400 }
       );
     }
 
-    const inputName = name.trim().toLowerCase();
-    const inputBranch = branch.trim().toLowerCase();
+    const parsed = enrollmentSchema.safeParse(body);
 
-    // Initialize Upstash Redis
-    const redis = Redis.fromEnv();
-    const legacyCsvPath = path.join(process.cwd(), "data", "legacy_ambassadors.csv");
-
-    let maxId = 58; // Start at 59 (58 + 1)
-    let duplicateCode = "";
-
-    // 1. Fetch existing data from Upstash Redis
-    let existingData: Ambassador[] = [];
-    try {
-      const data = await redis.get<Ambassador[]>("ambassadors");
-      if (data && Array.isArray(data)) {
-        existingData = data;
-      }
-    } catch (e: any) {
-      console.error("Failed to read from Redis:", e);
-    }
-
-    // Check Redis JSON array for duplicates and maxId
-    for (const ambassador of existingData) {
-      if (
-        ambassador.name.trim().toLowerCase() === inputName &&
-        ambassador.branch.trim().toLowerCase() === inputBranch
-      ) {
-        duplicateCode = ambassador.code;
-      }
-      if (ambassador.code && ambassador.code.startsWith("CA")) {
-        const numPart = parseInt(ambassador.code.substring(2), 10);
-        if (!isNaN(numPart) && numPart > maxId) {
-          maxId = numPart;
-        }
-      }
-    }
-
-    // 2. Fetch legacy CSV data (Read-Only static file, Vercel supports this)
-    try {
-      const csvData = await fs.readFile(legacyCsvPath, "utf-8");
-      const lines = csvData.split(/\r?\n/);
-      
-      for (const line of lines) {
-        if (!line.trim() || line.startsWith("FULL NAME")) continue;
-        
-        // CSV format: "Naman Verma ,CA001"
-        const parts = line.split(",");
-        if (parts.length >= 2) {
-          const csvName = parts[0].trim().toLowerCase();
-          const csvCode = parts[1].trim();
-
-          // In CSV we only have Name, so we match on Name
-          if (csvName === inputName) {
-            duplicateCode = csvCode;
-          }
-
-          if (csvCode && csvCode.startsWith("CA")) {
-            const numPart = parseInt(csvCode.substring(2), 10);
-            if (!isNaN(numPart) && numPart > maxId) {
-              maxId = numPart;
-            }
-          }
-        }
-      }
-    } catch (e: any) {
-      if (e.code !== "ENOENT") {
-        console.error("Failed to read from legacy_ambassadors.csv:", e);
-      }
-    }
-
-    // 3. Return error if duplicate found
-    if (duplicateCode) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: `You are already registered for the Campus Ambassador program. Your existing code is ${duplicateCode}.` },
-        { status: 409 } // Conflict
+        {
+          error: "Invalid enrollment data.",
+          issues: parsed.error.flatten().fieldErrors,
+        },
+        { status: 400 }
       );
     }
 
-    // 4. Generate New Code
-    const newCode = `CA${String(maxId + 1).padStart(3, "0")}`;
+    const { name, contact, branch } = parsed.data;
 
-    // 5. Append New Record to Redis
-    const newAmbassador: Ambassador = {
-      name: name.trim(),
-      contact: contact.trim(),
-      branch: branch.trim(),
-      code: newCode,
+    const duplicateHash = duplicateKey(
+      name,
+      contact,
+      branch
+    );
+
+    const duplicateRedisKey =
+      `ca:duplicate:${duplicateHash}`;
+
+    /*
+     * Reserve this enrollment atomically.
+     *
+     * NX means:
+     * "Create only if this key does not already exist."
+     */
+    const reserved = await campusAmbassadorRedis.set(
+      duplicateRedisKey,
+      "1",
+      {
+        nx: true,
+        ex: 365 * 24 * 60 * 60,
+      }
+    );
+
+    if (reserved !== "OK") {
+      return NextResponse.json(
+        {
+          error:
+            "You are already registered as a Campus Ambassador.",
+        },
+        { status: 409 }
+      );
+    }
+
+    /*
+     * INCR is atomic.
+     *
+     * Multiple simultaneous registrations cannot receive
+     * the same number.
+     */
+    const numericId = await campusAmbassadorRedis.incr(
+      AMBASSADOR_COUNTER_KEY
+    );
+
+    const referralCode =
+      `CA${String(numericId).padStart(3, "0")}`;
+
+    const ambassador: Ambassador = {
+      name,
+      contact,
+      branch,
+      code: referralCode,
       enrolledAt: new Date().toISOString(),
     };
 
-    existingData.push(newAmbassador);
+    /*
+     * Store the actual ambassador as an individual Redis hash.
+     */
+    await campusAmbassadorRedis.hset(
+      ambassadorKey(referralCode),
+      {
+        name: ambassador.name,
+        contact: ambassador.contact,
+        branch: ambassador.branch,
+        code: ambassador.code,
+        enrolledAt: ambassador.enrolledAt,
+      }
+    );
 
-    // Save the updated array back to Upstash Redis
-    await redis.set("ambassadors", existingData);
+    /*
+     * Keep a SET containing all ambassador codes.
+     */
+    await campusAmbassadorRedis.sadd(
+      AMBASSADOR_SET_KEY,
+      referralCode
+    );
 
     return NextResponse.json({
       success: true,
-      referralCode: newCode,
+      referralCode,
     });
-  } catch (error: any) {
-    console.error("Enrollment error:", error);
+  } catch (error) {
+    console.error(
+      "Campus ambassador enrollment failed:",
+      error
+    );
+
     return NextResponse.json(
-      { error: "Internal server error during enrollment. Check server logs." },
+      {
+        error:
+          "Unable to complete enrollment. Please try again later.",
+      },
       { status: 500 }
     );
   }
