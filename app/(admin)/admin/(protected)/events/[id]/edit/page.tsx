@@ -3,15 +3,22 @@ import { ArrowLeft, Save } from "lucide-react"
 import { getEvents, updateEvent } from "../../actions"
 import { notFound } from "next/navigation"
 
-export default async function EditEventPage({ params }: { params: { id: string } }) {
-  const events = await getEvents();
-  const event = events.find((e: any) => e.id === params.id);
-  
+export default async function EditEventPage({
+  params,
+  }: {
+  params: Promise<{ id: string }>;
+    }) {
+      const { id } = await params;
+
+    const events = await getEvents();
+  const event = events.find((e: any) => e.id === id);
+
   if (!event) {
     notFound();
   }
 
-  const updateEventWithId = updateEvent.bind(null, params.id);
+
+  const updateEventWithId = updateEvent.bind(null, id);
 
   return (
     <div className="space-y-6 max-w-4xl">
