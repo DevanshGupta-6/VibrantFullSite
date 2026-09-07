@@ -143,10 +143,9 @@ export async function uploadGalleryPhoto(formData: FormData) {
 
 export async function deleteImage(id: string) {
   const actor = await requirePermission("gallery.delete");
-  const db = await createClient();
-  const storageAdmin = createAdminClient();
+  const supabase = createAdminClient();
 
-  const { data: row, error: fetchError } = await db
+  const { data: row, error: fetchError } = await supabase
     .from("gallery_photos")
     .select("id,category,src")
     .eq("id", id)
@@ -155,18 +154,27 @@ export async function deleteImage(id: string) {
   if (fetchError) throw new Error(fetchError.message);
   if (!row) return;
 
-  const { error } = await db
+  const { error } = await supabase
     .from("gallery_photos")
-    .update({ deleted_at: new Date().toISOString(), published: false })
+    .update({
+      deleted_at: new Date().toISOString(),
+      published: false,
+    })
     .eq("id", id);
 
   if (error) throw new Error(error.message);
 
   const bucketMarker = "/storage/v1/object/public/gallery/";
   const index = row.src.indexOf(bucketMarker);
+
   if (index !== -1) {
-    const objectPath = decodeURIComponent(row.src.slice(index + bucketMarker.length));
-    await storageAdmin.storage.from("gallery").remove([objectPath]);
+    const objectPath = decodeURIComponent(
+      row.src.slice(index + bucketMarker.length)
+    );
+
+    await supabase.storage
+      .from("gallery")
+      .remove([objectPath]);
   }
 
   await auditAction({
