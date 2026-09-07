@@ -4,10 +4,16 @@ import { getSchedule, updateSchedule } from "../../actions"
 import ScheduleDaySelector from "@/components/admin/ScheduleDaySelector"
 import { notFound } from "next/navigation"
 
-export default async function EditSchedulePage({ params }: { params: { id: string } }) {
+export default async function EditSchedulePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const schedule = await getSchedule();
-  const slot = schedule.find((s: any) => s.id === params.id);
-  
+  const slot = schedule.find((s: any) => s.id === id);
+
   if (!slot) {
     notFound();
   }
@@ -21,7 +27,7 @@ export default async function EditSchedulePage({ params }: { params: { id: strin
   });
   const existingDays = Array.from(uniqueDaysMap.entries()).map(([day, dateText]) => ({ day, dateText }));
 
-  const updateScheduleWithId = updateSchedule.bind(null, params.id);
+  const updateScheduleWithId = updateSchedule.bind(null, id);
 
   return (
     <div className="space-y-6 max-w-4xl">

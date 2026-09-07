@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/auth/authorize";
 import { auditAction } from "@/lib/audit";
 import { enforceRateLimit } from "@/lib/rateLimit";
@@ -13,4 +14,74 @@ function inputFrom(fd: FormData) { return eventSchema.parse({ name: fd.get('name
 export async function getEvents() { await requirePermission('events.view'); const { data, error } = await (await createClient()).from('events').select('*').is('deleted_at', null).order('sort_order').order('number'); if (error) throw new Error(error.message); return (data ?? []).map((r: any) => ({ ...r, teamSize: r.team_size, sortOrder: r.sort_order, status: r.published ? 'Published' : 'Draft' })); }
 export async function addEvent(fd: FormData) { const actor = await requirePermission('events.create'); await enforceRateLimit(`mutation:${actor.id}:event:create`, 60, 60); const input = inputFrom(fd); const slug = slugify(input.name) || crypto.randomUUID(); const s = await createClient(); const { data: existing } = await s.from('events').select('id').eq('slug', slug).maybeSingle(); if (existing) throw new Error('An event with this name already exists.'); const { count } = await s.from('events').select('id', { count: 'exact', head: true }).is('deleted_at', null); const sortOrder = input.sortOrder > 0 ? input.sortOrder : (count ?? 0) + 1; const row = { id: slug, number: String(sortOrder).padStart(2, '0'), name: input.name, slug, category: input.category, tagline: input.tagline, description: input.description, date: input.date, time: input.time, team_size: input.teamSize, venue: input.venue, fee: input.fee, prize: input.prize, eligibility: input.eligibility, rules: input.rules, coordinators: input.coordinators, contact: input.contact, image: input.image, published: input.status === 'Published', sort_order: sortOrder }; const { data, error } = await s.from('events').insert(row).select('*').single(); if (error) throw new Error(error.message); await auditAction({ actorId: actor.id, action: 'EVENT_CREATED', entityType: 'Event', entityId: data.id, metadata: { name: data.name } }); revalidatePath('/'); revalidatePath('/events'); revalidatePath('/admin/events'); redirect('/admin/events?success=true') }
 export async function updateEvent(id: string, fd: FormData) { const actor = await requirePermission('events.edit'); await enforceRateLimit(`mutation:${actor.id}:event:update`, 120, 60); const input = inputFrom(fd); const slug = slugify(input.name); const s = await createClient(); const { data: existing } = await s.from('events').select('*').eq('id', id).is('deleted_at', null).maybeSingle(); if (!existing) throw new Error('Event not found.'); const { error } = await s.from('events').update({ name: input.name, slug, category: input.category, tagline: input.tagline, description: input.description, date: input.date, time: input.time, team_size: input.teamSize, venue: input.venue, fee: input.fee, prize: input.prize, eligibility: input.eligibility, rules: input.rules, coordinators: input.coordinators, contact: input.contact, image: input.image, published: input.status === 'Published', sort_order: input.sortOrder }).eq('id', id); if (error) throw new Error(error.message); await auditAction({ actorId: actor.id, action: 'EVENT_UPDATED', entityType: 'Event', entityId: id, metadata: { name: input.name } }); revalidatePath('/'); revalidatePath('/events'); revalidatePath('/admin/events'); redirect('/admin/events?success=true') }
-export async function deleteEvent(id: string) { const actor = await requirePermission('events.delete'); await enforceRateLimit(`mutation:${actor.id}:event:delete`, 60, 60); const s = await createClient(); const { data: row } = await s.from('events').select('name').eq('id', id).is('deleted_at', null).maybeSingle(); if (!row) return; const { error } = await s.from('events').update({ deleted_at: new Date().toISOString(), published: false }).eq('id', id); if (error) throw new Error(error.message); await auditAction({ actorId: actor.id, action: 'EVENT_DELETED', entityType: 'Event', entityId: id, metadata: { name: row.name } }); revalidatePath('/'); revalidatePath('/events'); revalidatePath('/admin/events') }
+export async function deleteEvent(id: string) {
+  const actor = await requirePermission("events.delete");
+
+  await enforceRateLimit(
+    `mutation:${actor.id}:event:delete`,
+    60,
+    60
+  );
+
+  /*
+   * Use the authenticated client for the read.
+   * This keeps the lookup subject to normal RLS.
+   */
+  const db = await createClient();
+
+  const { data: row, error: readError } = await db
+    .from("events")
+    .select("name")
+    .eq("id", id)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (readError) {
+    throw new Error(readError.message);
+  }
+
+  if (!row) {
+    return;
+  }
+
+  /*
+   * deleteEvent() is a SOFT DELETE:
+   *
+   *   deleted_at = timestamp
+   *   published  = false
+   *
+   * The Server Action has already verified:
+   *
+   *   requirePermission("events.delete")
+   *
+   * Therefore use the privileged server-side client for
+   * the actual administrative mutation.
+   */
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("events")
+    .update({
+      deleted_at: new Date().toISOString(),
+      published: false,
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await auditAction({
+    actorId: actor.id,
+    action: "EVENT_DELETED",
+    entityType: "Event",
+    entityId: id,
+    metadata: {
+      name: row.name,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/events");
+  revalidatePath("/admin/events");
+}

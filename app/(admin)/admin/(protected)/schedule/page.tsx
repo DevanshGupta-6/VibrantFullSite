@@ -2,17 +2,31 @@ import { Plus, Clock, Edit2, Trash2, CheckCircle, ArrowLeft } from "lucide-react
 import Link from "next/link"
 import { getSchedule, deleteSchedule } from "./actions"
 
-export default async function AdminSchedulePage({ searchParams }: { searchParams: { success?: string, day?: string } }) {
+export default async function AdminSchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    success?: string;
+    day?: string;
+  }>;
+}) {
+  const params = await searchParams;
+
   const allSchedule = await getSchedule();
-  
-  // Extract unique days dynamically
+
   const uniqueDays = Array.from(
-    new Set<string>(allSchedule.map((s: any) => s.day as string))
+    new Set<string>(
+      allSchedule.map((s: any) => s.day as string)
+    )
   );
-  const activeDay = searchParams.day || (uniqueDays.length > 0 ? uniqueDays[0] : "Day 1");
-  
-  // Filter by active day
-  const filteredSchedule = allSchedule.filter((s: any) => s.day === activeDay);
+
+  const activeDay =
+    params.day ||
+    (uniqueDays.length > 0 ? uniqueDays[0] : "Day 1");
+
+  const filteredSchedule = allSchedule.filter(
+    (s: any) => s.day === activeDay
+  );
 
   return (
     <div className="space-y-6">
@@ -32,7 +46,7 @@ export default async function AdminSchedulePage({ searchParams }: { searchParams
         </Link>
       </div>
       
-      {searchParams.success && (
+      {params.success && (
         <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-lg flex items-center justify-between">
            <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5" />
