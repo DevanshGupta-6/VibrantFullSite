@@ -90,14 +90,18 @@ export default async function UsersPage({
                 const roleTallies: Record<string, number> = {};
                 
                 return users.map((user: any) => {
-                  const totalWithRole = users.filter((u: any) => u.role.name === user.role.name).length;
-                  
-                  roleTallies[user.role.name] = (roleTallies[user.role.name] || 0) + 1;
-                  
-                  // If there's more than 1 person with this role, append a number (e.g. "Event Manager 1")
-                  const displayRole = totalWithRole > 1
-                    ? `${user.role.name} ${roleTallies[user.role.name]}`
-                    : user.role.name;
+                  const roleName = user.role?.name ?? "No Role";
+
+                  const totalWithRole = users.filter(
+                    (u: any) => (u.role?.name ?? "No Role") === roleName
+                  ).length;
+
+                roleTallies[roleName] = (roleTallies[roleName] || 0) + 1;
+
+                const displayRole =
+                  totalWithRole > 1
+                    ? `${roleName} ${roleTallies[roleName]}`
+                    : roleName;
                   
                   return (
                     <tr key={user.id} className="hover:bg-ink-900/30 transition-colors group">

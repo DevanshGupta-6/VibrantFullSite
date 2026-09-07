@@ -3,7 +3,12 @@ import Link from "next/link"
 import { getRoles, deleteRole } from "./actions"
 import { getUsers } from "../users/actions"
 
-export default async function RolesPage({ searchParams }: { searchParams: { success?: string } }) {
+export default async function RolesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ success?: string }>;
+}) {
+  const params = await searchParams;
   const roles = await getRoles();
   
 
@@ -28,7 +33,7 @@ export default async function RolesPage({ searchParams }: { searchParams: { succ
         </Link>
       </div>
 
-      {searchParams.success && (
+      {params.success && (
         <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-lg flex items-center justify-between">
            <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5" />

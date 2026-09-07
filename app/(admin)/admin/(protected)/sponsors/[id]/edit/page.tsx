@@ -3,15 +3,21 @@ import { ArrowLeft, Save } from "lucide-react"
 import { getSponsors, updateSponsor } from "../../actions"
 import { notFound } from "next/navigation"
 
-export default async function EditSponsorPage({ params }: { params: { id: string } }) {
+export default async function EditSponsorPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const sponsors = await getSponsors();
-  const sponsor = sponsors.find((s: any) => s.id === params.id);
-  
+  const sponsor = sponsors.find((s: any) => s.id === id);
+
   if (!sponsor) {
     notFound();
   }
 
-  const updateSponsorWithId = updateSponsor.bind(null, params.id);
+  const updateSponsorWithId = updateSponsor.bind(null, id);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -33,10 +39,16 @@ export default async function EditSponsorPage({ params }: { params: { id: string
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-ink-300">Tier</label>
-            <select name="tier" defaultValue={sponsor.tier} className="w-full bg-[#07070B] border border-ink-800 rounded-lg px-4 py-2.5 text-sm text-ink-100 focus:outline-none focus:border-vibeesta-500">
-               <option value="Title Sponsor">Title Sponsor</option>
-               <option value="Powered By">Powered By</option>
-               <option value="Associate">Associate</option>
+            <select
+              name="tier"
+              defaultValue={sponsor.tier ?? "Partners"}
+              required
+              className="w-full bg-[#07070B] border border-ink-800 rounded-lg px-4 py-2.5 text-sm text-ink-100"
+            >
+              <option value="Title Sponsor">Title Sponsor</option>
+              <option value="Powered By">Powered By</option>
+              <option value="Co-Sponsors">Co-Sponsors</option>
+              <option value="Partners">Partners</option>
             </select>
           </div>
           <div className="space-y-2">
@@ -47,6 +59,19 @@ export default async function EditSponsorPage({ params }: { params: { id: string
             <label className="text-sm font-medium text-ink-300">Website URL</label>
             <input name="url" required type="url" defaultValue={sponsor.url} className="w-full bg-[#07070B] border border-ink-800 rounded-lg px-4 py-2.5 text-sm text-ink-100 focus:outline-none focus:border-vibeesta-500" />
           </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            id="published"
+            name="published"
+            type="checkbox"
+            defaultChecked={sponsor.published}
+            className="h-4 w-4"
+          />
+
+          <label htmlFor="published" className="text-sm text-ink-300">
+            Show this sponsor on the Home Page
+          </label>
         </div>
         <div className="flex justify-end pt-4 border-t border-ink-800">
            <button type="submit" className="flex items-center gap-2 bg-vibeesta-600 hover:bg-vibeesta-500 text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors">

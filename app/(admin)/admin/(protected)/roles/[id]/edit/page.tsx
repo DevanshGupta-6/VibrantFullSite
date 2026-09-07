@@ -4,15 +4,21 @@ import RoleForm from "@/components/admin/RoleForm"
 import { getRoles, updateRole } from "../../actions"
 import { notFound } from "next/navigation"
 
-export default async function EditRolePage({ params }: { params: { id: string } }) {
+export default async function EditRolePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const roles = await getRoles();
-  const role = roles.find((r: any) => r.id === params.id);
+  const role = roles.find((r: any) => r.id === id);
   
   if (!role) {
     notFound();
   }
 
-  const updateRoleWithId = updateRole.bind(null, params.id);
+  const updateRoleWithId = updateRole.bind(null, id);
 
   return (
     <div className="space-y-6 max-w-5xl">

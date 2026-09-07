@@ -3,15 +3,17 @@ import { ArrowLeft, Save } from "lucide-react"
 import { getFaqs, updateFaq } from "../../actions"
 import { notFound } from "next/navigation"
 
-export default async function EditFaqPage({ params }: { params: { id: string } }) {
-  const faqs = await getFaqs();
-  const faq = faqs.find((f: any) => f.id === params.id);
-  
-  if (!faq) {
-    notFound();
-  }
+export default async function EditFaqPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-  const updateFaqWithId = updateFaq.bind(null, params.id);
+  const faqs = await getFaqs();
+  const faq = faqs.find((f: any) => f.id === id);
+
+  const updateFaqWithId = updateFaq.bind(null, id);
 
   return (
     <div className="space-y-6 max-w-4xl">

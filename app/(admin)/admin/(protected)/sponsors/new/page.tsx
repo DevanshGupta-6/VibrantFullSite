@@ -26,7 +26,8 @@ export default function NewSponsorPage() {
             <select name="tier" className="w-full bg-[#07070B] border border-ink-800 rounded-lg px-4 py-2.5 text-sm text-ink-100 focus:outline-none focus:border-vibeesta-500">
                <option value="Title Sponsor">Title Sponsor</option>
                <option value="Powered By">Powered By</option>
-               <option value="Associate">Associate</option>
+               <option value="Co-Sponsors">Co-Sponsors</option>
+               <option value="Partners">Partners</option>
             </select>
           </div>
           <div className="space-y-2">

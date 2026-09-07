@@ -4,8 +4,15 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sponsor } from "@/lib/types";
+const sponsorTierOrder = [
+  "Title Sponsor",
+  "Powered By",
+  "Co-Sponsors",
+  "Partners",
+];
 
 export default function Sponsors() {
+  
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +20,9 @@ export default function Sponsors() {
   useEffect(() => {
     let isCurrent = true;
 
-    fetch("/api/public/sponsors").then((response) => response.ok ? response.json() : Promise.reject(new Error("Unable to load sponsors.")))
+    fetch("/api/public/sponsors", {
+      cache: "no-store",
+    }).then((response) => response.ok ? response.json() : Promise.reject(new Error("Unable to load sponsors.")))
       .then((data) => {
         if (isCurrent) {
           setSponsors(data);
