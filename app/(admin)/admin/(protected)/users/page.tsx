@@ -2,11 +2,17 @@ import { Plus, Edit2, Trash2, Search, Filter, ShieldCheck, Mail, Calendar as Cal
 import Link from "next/link"
 import { getUsers, deleteUser } from "./actions"
 
-export default async function UsersPage({ searchParams }: { searchParams: { success?: string, role?: string } }) {
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string; success?: string }>;
+}) {
+  const params = await searchParams;
+
   let users = await getUsers();
 
-  if (searchParams.role) {
-    users = users.filter((u: any) => u.role === searchParams.role);
+  if (params.role) {
+    users = users.filter((u: any) => u.role === params.role);
   }
 
   return (
@@ -30,13 +36,13 @@ export default async function UsersPage({ searchParams }: { searchParams: { succ
         </Link>
       </div>
 
-      {searchParams.success && (
+      {params.success && (
         <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-lg flex items-center justify-between">
            <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5" />
               <p className="text-sm font-medium">Action completed successfully.</p>
            </div>
-           <Link href={`/admin/users${searchParams.role ? `?role=${searchParams.role}` : ''}`} className="text-green-400 hover:text-green-300 px-2 py-1">
+           <Link href={`/admin/users${params.role ? `?role=${params.role}` : ''}`} className="text-green-400 hover:text-green-300 px-2 py-1">
              Dismiss
            </Link>
         </div>
@@ -56,13 +62,13 @@ export default async function UsersPage({ searchParams }: { searchParams: { succ
            </div>
            
            <div className="flex gap-2">
-             <Link href="/admin/users" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${!searchParams.role ? 'bg-vibeesta-500/10 text-vibeesta-400 border border-vibeesta-500/20' : 'bg-ink-900 border border-ink-800 text-ink-300'}`}>
+             <Link href="/admin/users" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${!params.role ? 'bg-vibeesta-500/10 text-vibeesta-400 border border-vibeesta-500/20' : 'bg-ink-900 border border-ink-800 text-ink-300'}`}>
                All
              </Link>
-             <Link href="/admin/users?role=Super Admin" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${searchParams.role === 'Super Admin' ? 'bg-vibeesta-500/10 text-vibeesta-400 border border-vibeesta-500/20' : 'bg-ink-900 border border-ink-800 text-ink-300'}`}>
+             <Link href="/admin/users?role=Super Admin" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${params.role === 'Super Admin' ? 'bg-vibeesta-500/10 text-vibeesta-400 border border-vibeesta-500/20' : 'bg-ink-900 border border-ink-800 text-ink-300'}`}>
                Admin
              </Link>
-             <Link href="/admin/users?role=Coordinator" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${searchParams.role === 'Event Manager' ? 'bg-vibeesta-500/10 text-vibeesta-400 border border-vibeesta-500/20' : 'bg-ink-900 border border-ink-800 text-ink-300'}`}>
+             <Link href="/admin/users?role=Coordinator" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${params.role === 'Event Manager' ? 'bg-vibeesta-500/10 text-vibeesta-400 border border-vibeesta-500/20' : 'bg-ink-900 border border-ink-800 text-ink-300'}`}>
                Manager
              </Link>
            </div>
