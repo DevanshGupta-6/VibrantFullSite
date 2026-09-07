@@ -4,11 +4,13 @@ import { useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import UserNav from "@/components/admin/UserNav";
 import { Menu } from "lucide-react";
+import type { PermissionCode } from "@/lib/auth/permissions";
 
 type AdminUser = {
   name: string;
   email: string;
   role: string;
+  permissions: PermissionCode[];
 };
 
 export default function AdminLayoutShell({
@@ -37,7 +39,7 @@ export default function AdminLayoutShell({
         }`}
       >
         <Sidebar
-          role={admin.role}
+          permissions= {admin.permissions}
           onNavigate={() => setIsSidebarOpen(false)}
         />
       </div>

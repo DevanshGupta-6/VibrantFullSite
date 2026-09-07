@@ -5,6 +5,8 @@ import { getRoles } from "../../../roles/actions"
 import { getEvents } from "../../../events/actions"
 import PasswordGenerator from "@/components/admin/PasswordGenerator"
 import { notFound } from "next/navigation"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function EditUserPage({
   params,
@@ -12,6 +14,7 @@ export default async function EditUserPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  await requirePermission("users.edit")
 
   const users = await getUsers()
   const user = users.find((u: any) => u.id === id)
@@ -83,6 +86,7 @@ export default async function EditUserPage({
            </button>
         </div>
       </form>
+      <RoleForm action={updateUser} />
     </div>
   )
 }

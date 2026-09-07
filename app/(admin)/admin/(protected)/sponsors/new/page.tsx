@@ -1,8 +1,11 @@
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { addSponsor } from "../actions"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
-export default function NewSponsorPage() {
+export default async function NewSponsorPage() {
+  await requirePermission("sponsors.create");
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center gap-4">
@@ -45,6 +48,7 @@ export default function NewSponsorPage() {
            </button>
         </div>
       </form>
+      <RoleForm action={addSponsor} />
     </div>
   )
 }

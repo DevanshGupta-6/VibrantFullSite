@@ -1,9 +1,11 @@
 import { Plus, Edit2, Trash2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { getFaqs, deleteFaq } from "./actions"
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function AdminFaqsPage() {
   const faqs = await getFaqs();
+  const admin = await requirePermission("faqs.view");
 
   return (
     <div className="space-y-6">
@@ -37,14 +39,18 @@ export default async function AdminFaqsPage() {
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {admin.permissions.includes("faqs.edit") && (
                 <Link href={`/admin/faqs/${faq.id}/edit`} className="p-2 text-ink-500 hover:text-vibeesta-400 hover:bg-vibeesta-400/10 rounded-lg transition-colors">
                   <Edit2 className="w-4 h-4" />
                 </Link>
+                )}
+                {admin.permissions.includes("faqs.delete") &&(
                 <form action={deleteFaq.bind(null, faq.id)}>
                   <button type="submit" className="p-2 text-ink-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </form>
+                )}
               </div>
             </div>
           </div>

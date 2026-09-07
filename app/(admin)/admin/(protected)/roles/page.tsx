@@ -2,6 +2,7 @@ import { Shield, Plus, Edit2, Trash2, Users, CheckCircle, ArrowLeft } from "luci
 import Link from "next/link"
 import { getRoles, deleteRole } from "./actions"
 import { getUsers } from "../users/actions"
+import { requirePermission } from "@/lib/auth/authorize"
 
 export default async function RolesPage({
   searchParams,
@@ -10,6 +11,7 @@ export default async function RolesPage({
 }) {
   const params = await searchParams;
   const roles = await getRoles();
+  const admin = await requirePermission("roles.view")
   
 
   return (
@@ -88,10 +90,12 @@ export default async function RolesPage({
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
                     <div className="flex items-center justify-end gap-2">
+                      {admin.permissions.includes("roles.edit") && (
                       <Link href={`/admin/roles/${role.id}/edit`} className="inline-flex p-2 text-ink-400 hover:text-vibeesta-400 hover:bg-vibeesta-500/10 rounded-lg transition-colors">
                         <Edit2 className="w-4 h-4" />
                       </Link>
-                      {!isSystem && (
+                      )}
+                      {!isSystem && admin.permissions.includes("users.delete") && (
                         <form action={deleteRole.bind(null, role.id)}>
                           <button type="submit" className="inline-flex p-2 text-ink-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                             <Trash2 className="w-4 h-4" />

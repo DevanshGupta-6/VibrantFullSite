@@ -1,10 +1,12 @@
 import { getSponsors, addDummySponsor, deleteSponsor } from "./actions"
 import Link from "next/link"
 import { ArrowLeft, Edit2, Trash2 } from "lucide-react"
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function SponsorsPage() {
   const sponsors = await getSponsors();
 
+  const admin = await requirePermission("sponsors.view")
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -32,14 +34,18 @@ export default async function SponsorsPage() {
               <p className="text-ink-400 text-xs uppercase tracking-wider font-semibold mt-1">{s.tier}</p>
               
               <div className="flex items-center gap-2 mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                {admin.permissions.includes("sponsors.edit") && (
                  <Link href={`/admin/sponsors/${s.id}/edit`} className="p-2 bg-ink-900 border border-ink-800 rounded-lg text-ink-400 hover:text-vibeesta-400 hover:border-vibeesta-500/30 transition-colors">
                    <Edit2 className="w-4 h-4" />
                  </Link>
+                )}
+                {admin.permissions.includes("sponsors.delete") && (
                  <form action={deleteSponsor.bind(null, s.id)}>
                    <button type="submit" className="p-2 bg-ink-900 border border-ink-800 rounded-lg text-ink-400 hover:text-red-400 hover:border-red-500/30 transition-colors">
                      <Trash2 className="w-4 h-4" />
                    </button>
                  </form>
+                )}
               </div>
            </div>
          ))}

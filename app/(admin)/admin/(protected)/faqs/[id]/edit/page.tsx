@@ -2,6 +2,8 @@ import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { getFaqs, updateFaq } from "../../actions"
 import { notFound } from "next/navigation"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function EditFaqPage({
   params,
@@ -9,6 +11,7 @@ export default async function EditFaqPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  await requirePermission("faqs.edit");
 
   const faqs = await getFaqs();
   const faq = faqs.find((f: any) => f.id === id);
@@ -55,6 +58,7 @@ export default async function EditFaqPage({
            </button>
         </div>
       </form>
+      <RoleForm action={updateFaq} />
     </div>
   )
 }

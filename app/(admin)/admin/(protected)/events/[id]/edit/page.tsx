@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { getEvents, updateEvent } from "../../actions";
 import { notFound } from "next/navigation";
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function EditEventPage({
   params,
@@ -9,7 +11,7 @@ export default async function EditEventPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
+  await requirePermission("events.edit");
   const events = await getEvents();
   const event = events.find((e: any) => e.id === id);
 
@@ -305,6 +307,7 @@ export default async function EditEventPage({
           </button>
         </div>
       </form>
+      <RoleForm action={updateEvent} />
     </div>
   );
 }

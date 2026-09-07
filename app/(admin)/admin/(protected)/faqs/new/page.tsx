@@ -1,8 +1,11 @@
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { addFaq } from "../actions"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
-export default function NewFaqPage() {
+export default async function NewFaqPage() {
+  await requirePermission("faqs.create");
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center gap-4">
@@ -43,6 +46,7 @@ export default function NewFaqPage() {
            </button>
         </div>
       </form>
+      <RoleForm action={addFaq} />
     </div>
   )
 }

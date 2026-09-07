@@ -3,6 +3,8 @@ import { ArrowLeft, Save } from "lucide-react"
 import { getSchedule, updateSchedule } from "../../actions"
 import ScheduleDaySelector from "@/components/admin/ScheduleDaySelector"
 import { notFound } from "next/navigation"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function EditSchedulePage({
   params,
@@ -10,6 +12,7 @@ export default async function EditSchedulePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  await requirePermission("schedule.edit")
 
   const schedule = await getSchedule();
   const slot = schedule.find((s: any) => s.id === id);
@@ -67,6 +70,7 @@ export default async function EditSchedulePage({
            </button>
         </div>
       </form>
+      <RoleForm action={updateSchedule} />
     </div>
   )
 }

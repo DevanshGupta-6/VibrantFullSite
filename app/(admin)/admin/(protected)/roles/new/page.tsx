@@ -1,9 +1,11 @@
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
-import RoleForm from "@/components/admin/RoleForm"
-import { addRole } from "../actions"
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import RoleForm from "@/components/admin/RoleForm";
+import { addRole } from "../actions";
+import { requirePermission } from "@/lib/auth/authorize";
 
-export default function NewRolePage() {
+export default async function NewRolePage() {
+  await requirePermission("roles.create");
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="flex items-center gap-4">

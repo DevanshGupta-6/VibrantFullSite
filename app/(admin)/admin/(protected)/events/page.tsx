@@ -1,10 +1,12 @@
 import { Plus, Search, Filter, Edit2, Trash2, ArrowLeft, CheckCircle, Calendar as CalendarIcon, MapPin, Users } from "lucide-react"
 import Link from "next/link"
 import { getEvents, deleteEvent } from "./actions"
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function AdminEventsPage({ searchParams }: { searchParams: { success?: string, category?: string } }) {
   const params = await searchParams;
   let events = await getEvents();
+  const admin = await requirePermission("events.view");
   
   if (params.category) {
     events = events.filter((e: any) => e.category === params.category);
@@ -118,14 +120,18 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
                     <div className="flex items-center justify-end gap-2">
+                      {admin.permissions.includes("events.edit") && (
                       <Link href={`/admin/events/${event.id}/edit`} className="inline-flex p-2 text-ink-400 hover:text-vibeesta-400 hover:bg-vibeesta-400/10 rounded-lg transition-colors">
                         <Edit2 className="w-4 h-4" />
                       </Link>
+                      )}
+                      {admin.permissions.includes("users.delete") &&(
                       <form action={deleteEvent.bind(null, event.id)}>
                         <button type="submit" className="inline-flex p-2 text-ink-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </form>
+                      )}
                     </div>
                   </td>
                 </tr>

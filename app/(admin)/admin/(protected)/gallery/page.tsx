@@ -1,6 +1,7 @@
 import { Plus, Trash2, ArrowLeft, CheckCircle, Upload } from "lucide-react";
 import Link from "next/link";
 import { getGallery, uploadGalleryPhoto, deleteImage } from "./actions";
+import { requirePermission } from "@/lib/auth/authorize";
 
 type SearchParams = {
   filter?: string;
@@ -23,6 +24,7 @@ export default async function AdminGalleryPage({
   const params = await searchParams;
   const gallery = await getGallery();
   const currentFilter = params.filter || "All";
+  const admin = await requirePermission("gallery.view")
 
   const filteredGallery = currentFilter === "All"
     ? gallery
@@ -138,11 +140,13 @@ export default async function AdminGalleryPage({
               <div key={img.id} className="group relative aspect-square rounded-lg overflow-hidden bg-ink-900 border border-ink-800">
                 <img src={img.src} alt={img.alt} className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                {admin.permissions.includes("gallery.delete") &&(
                   <form action={deleteImage.bind(null, img.id)}>
                     <button type="submit" className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors" aria-label={`Delete ${img.alt}`}>
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </form>
+                )}
                 </div>
               </div>
             ))}

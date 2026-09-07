@@ -13,7 +13,12 @@ export const PERMISSIONS = [
 ] as const;
 
 export type PermissionCode = (typeof PERMISSIONS)[number];
-
+export function hasPermission(
+  permissions: readonly string[],
+  permission: PermissionCode
+): boolean {
+  return permissions.includes(permission);
+}
 export const PERMISSION_DESCRIPTIONS: Record<PermissionCode, string> = Object.fromEntries(
   PERMISSIONS.map((code) => [code, code.replace(/\./g, " ").replace(/_/g, " ")])
 ) as Record<PermissionCode, string>;

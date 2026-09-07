@@ -3,11 +3,14 @@ import { ArrowLeft, Save } from "lucide-react"
 import { addUser } from "../actions"
 import { getRoles } from "../../roles/actions"
 import { getEvents } from "../../events/actions"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 import PasswordGenerator from "@/components/admin/PasswordGenerator"
 
 export default async function NewUserPage() {
   const roles = await getRoles();
   const events = await getEvents();
+  await requirePermission("users.create");
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -59,6 +62,7 @@ export default async function NewUserPage() {
            </button>
         </div>
       </form>
+      <RoleForm action={addUser} />
     </div>
   )
 }

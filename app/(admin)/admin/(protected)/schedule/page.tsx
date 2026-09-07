@@ -1,6 +1,7 @@
 import { Plus, Clock, Edit2, Trash2, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { getSchedule, deleteSchedule } from "./actions"
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function AdminSchedulePage({
   searchParams,
@@ -11,6 +12,7 @@ export default async function AdminSchedulePage({
   }>;
 }) {
   const params = await searchParams;
+  const admin = await requirePermission("schedule.view")
 
   const allSchedule = await getSchedule();
 
@@ -99,14 +101,19 @@ export default async function AdminSchedulePage({
                  </div>
                </div>
                <div className="flex items-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                {admin.permissions.includes("faqs.edit") && (
+
                   <Link href={`/admin/schedule/${slot.id}/edit`} className="p-2 bg-ink-900 border border-ink-800 rounded-lg text-ink-400 hover:text-vibeesta-400 hover:border-vibeesta-500/30 transition-colors">
                     <Edit2 className="w-4 h-4" />
                   </Link>
+                )}
+                {admin.permissions.includes("schedule.delete") &&(
                   <form action={deleteSchedule.bind(null, slot.id)}>
                     <button type="submit" className="p-2 bg-ink-900 border border-ink-800 rounded-lg text-ink-400 hover:text-red-400 hover:border-red-500/30 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </form>
+                )}
                </div>
              </div>
            ))}

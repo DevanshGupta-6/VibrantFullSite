@@ -14,6 +14,7 @@ const MODULES = [
   { name: "faqs", actions: ["view", "create", "edit", "delete"] },
   { name: "settings", actions: ["view", "manage"] },
   { name: "audit", actions: ["view"] },
+  { name: "campus_ambassador", actions: ["view", "reset"] },
 ];
 
 export default function RoleForm({ initialData, action }: { initialData?: any, action: any }) {

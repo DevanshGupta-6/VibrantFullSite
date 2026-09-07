@@ -2,9 +2,12 @@ import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { addSchedule, getSchedule } from "../actions"
 import ScheduleDaySelector from "@/components/admin/ScheduleDaySelector"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function NewSchedulePage() {
   const schedule = await getSchedule();
+  await requirePermission("schedule.create")
   
   // Extract unique days with their dates
   const uniqueDaysMap = new Map();
@@ -54,6 +57,7 @@ export default async function NewSchedulePage() {
            </button>
         </div>
       </form>
+      <RoleForm action={addSchedule} />
     </div>
   )
 }

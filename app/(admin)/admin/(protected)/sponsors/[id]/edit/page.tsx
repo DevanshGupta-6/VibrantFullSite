@@ -2,6 +2,8 @@ import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { getSponsors, updateSponsor } from "../../actions"
 import { notFound } from "next/navigation"
+import RoleForm from "@/components/admin/RoleForm";
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function EditSponsorPage({
   params,
@@ -9,6 +11,7 @@ export default async function EditSponsorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  await requirePermission("sponsors.edit")
 
   const sponsors = await getSponsors();
   const sponsor = sponsors.find((s: any) => s.id === id);
@@ -79,6 +82,7 @@ export default async function EditSponsorPage({
            </button>
         </div>
       </form>
+      <RoleForm action={updateSponsor} />
     </div>
   )
 }

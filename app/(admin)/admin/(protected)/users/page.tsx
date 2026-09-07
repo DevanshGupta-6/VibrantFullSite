@@ -1,6 +1,7 @@
 import { Plus, Edit2, Trash2, Search, Filter, ShieldCheck, Mail, Calendar as CalendarIcon, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { getUsers, deleteUser } from "./actions"
+import { requirePermission } from "@/lib/auth/authorize";
 
 export default async function UsersPage({
   searchParams,
@@ -8,6 +9,7 @@ export default async function UsersPage({
   searchParams: Promise<{ role?: string; success?: string }>;
 }) {
   const params = await searchParams;
+  const admin = await requirePermission("users.view")
 
   let users = await getUsers();
 
@@ -144,16 +146,25 @@ export default async function UsersPage({
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
                         <div className="flex items-center justify-end gap-2">
-                           <Link href={`/admin/users/${user.id}/edit`} className="inline-flex p-2 text-ink-400 hover:text-vibeesta-400 hover:bg-vibeesta-500/10 rounded-lg transition-colors">
-                             <Edit2 className="w-4 h-4" />
-                           </Link>
-                           {user.role.code !== "SUPER_ADMIN" && (
-                             <form action={deleteUser.bind(null, user.id)}>
-                               <button type="submit" className="inline-flex p-2 text-ink-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                                 <Trash2 className="w-4 h-4" />
-                               </button>
-                             </form>
-                           )}
+                           {admin.permissions.includes("users.edit") && (
+                              <Link
+                                href={`/admin/users/${user.id}/edit`}
+                                className="inline-flex p-2 ..."
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Link>
+                            )}
+                           {admin.permissions.includes("users.delete") &&
+                              user.role.code !== "SUPER_ADMIN" && (
+                                <form action={deleteUser.bind(null, user.id)}>
+                                  <button
+                                    type="submit"
+                                    className="inline-flex p-2 ..."
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </form>
+                            )}
                         </div>
                       </td>
                     </tr>
