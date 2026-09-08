@@ -46,7 +46,11 @@ export default async function AuditLogsPage() {
                <div className="flex-1 min-w-0">
                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
                    <h4 className="text-sm font-semibold text-ink-100">{log.action} <span className="text-ink-500 font-normal">in {log.module}</span></h4>
-                   <span className="text-xs text-ink-500 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5"/>{new Date(log.timestamp).toLocaleString()}</span>
+                   <span className="text-xs text-ink-500 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5"/>{new Date(log.timestamp).toLocaleString("en-IN", {
+  timeZone: "Asia/Kolkata",
+  dateStyle: "medium",
+  timeStyle: "medium",
+})}</span>
                  </div>
                  <p className="text-sm text-ink-300 mb-2">{log.details}</p>
                  <div className="text-xs text-ink-500 flex items-center gap-1.5">
