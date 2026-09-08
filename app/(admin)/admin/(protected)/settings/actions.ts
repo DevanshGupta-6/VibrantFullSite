@@ -1,5 +1,42 @@
 "use server";
-import { revalidatePath } from 'next/cache'; import { redirect } from 'next/navigation'; import { createClient } from '@/lib/supabase/server'; import { requirePermission } from '@/lib/auth/authorize'; import { auditAction } from '@/lib/audit';
+import { revalidatePath } from 'next/cache'; import { redirect } from 'next/navigation'; import { createClient } from '@/lib/supabase/server'; import { requirePermission } from '@/lib/auth/authorize'; import { auditAction } from '@/lib/audit'; import { createAdminClient } from '@/lib/supabase/admin';
 const v=(fd:FormData,k:string)=>{const x=String(fd.get(k)||'').trim();return x||null};
 export async function getSettings(){await requirePermission('settings.view');const {data,error}=await (await createClient()).from('site_settings').select('*').eq('id','site').maybeSingle();if(error)throw new Error(error.message);return data??{id:'site'};}
-export async function saveSettings(fd:FormData){const a=await requirePermission('settings.manage');const data={event_name:v(fd,'eventName')||'VIBRANT 2K26',tagline:v(fd,'tagline')||'',dates_label:v(fd,'datesLabel')||'',venue:v(fd,'venue')||'',registration_url:v(fd,'registrationUrl'),instagram_url:v(fd,'instagramUrl'),linkedin_url:v(fd,'linkedinUrl')};const {error}=await (await createClient()).from('site_settings').upsert({id:'site',...data});if(error)throw new Error(error.message);await auditAction({actorId:a.id,action:'SETTINGS_UPDATED',entityType:'SiteSettings',entityId:'site'});revalidatePath('/');revalidatePath('/admin/settings');redirect('/admin/settings?success=true')}
+export async function saveSettings(fd: FormData) {
+  const a = await requirePermission("settings.manage");
+
+  const data = {
+    event_name: v(fd, "eventName") || "VIBRANT 2K26",
+    tagline: v(fd, "tagline") || "",
+    dates_label: v(fd, "datesLabel") || "",
+    venue: v(fd, "venue") || "",
+    registration_url: v(fd, "registrationUrl"),
+    instagram_url: v(fd, "instagramUrl"),
+    linkedin_url: v(fd, "linkedinUrl"),
+  };
+
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from("site_settings")
+    .upsert({
+      id: "site",
+      ...data,
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await auditAction({
+    actorId: a.id,
+    action: "SETTINGS_UPDATED",
+    entityType: "SiteSettings",
+    entityId: "site",
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+
+  redirect("/admin/settings?success=true");
+}
