@@ -8,8 +8,8 @@ export async function middleware(request: NextRequest) {
   if (!pathname.startsWith('/admin') || pathname === '/admin/login' || pathname === '/admin/register') return response;
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_PUBLISHABLE_KEY!,
     { cookies: { getAll: () => request.cookies.getAll(), setAll: () => {} } }
   );
   const { data } = await supabase.auth.getClaims();
