@@ -4,7 +4,7 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { PERMISSIONS } from "../lib/auth/permissions";
 
-const url = process.env.SUPABASE_URL;
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const secret = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !secret) throw new Error("Set SUPABASE_URL and SUPABASE_SECRET_KEY before seeding.");
 const supabase = createClient(url, secret, { auth: { autoRefreshToken:false, persistSession:false } });
