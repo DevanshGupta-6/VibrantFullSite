@@ -350,3 +350,37 @@ h4 {
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgba(168, 85, 247, 0.4);
 }
+@keyframes loading-shimmer {
+  0% {
+    transform: translateX(0) skewX(-12deg);
+  }
+
+  100% {
+    transform: translateX(420%) skewX(-12deg);
+  }
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-140%);
+  }
+
+  100% {
+    transform: translateX(450%);
+  }
+}
+
+.animate-loading-shimmer {
+  animation: loading-shimmer 1.6s ease-in-out infinite;
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-loading-shimmer,
+  .animate-loading-bar {
+    animation: none;
+  }
+}
